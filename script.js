@@ -254,6 +254,8 @@ function draw(){
 }
 
 function applyResult(ok) {
+  ok = Boolean(ok);
+
   if (ok) {
     score = Math.min(TARGET_SCORE, score + 1);
     state = score >= TARGET_SCORE ? 'connected' : 'boostsuccess';
@@ -262,8 +264,10 @@ function applyResult(ok) {
     score = Math.max(0, score - 2);
     state = fails >= 5 ? 'totalfail' : 'wrong';
   }
+
   stateStart = performance.now();
 }
+
 
 window.addEventListener('keydown', e=>{
   const now = performance.now();
