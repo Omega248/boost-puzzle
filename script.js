@@ -1,22 +1,18 @@
-// script.js
-// ==== CONFIG & STYLES ====
 const rootStyles = getComputedStyle(document.documentElement);
 const LIGHT    = rootStyles.getPropertyValue('--light-green').trim();
 const CONNECT  = rootStyles.getPropertyValue('--connect-green').trim();
 const H_FILL   = 'rgba(20,30,21,0.50)';
 const H_BORDER = '#1A946B';
 
-// Layout & Fonts
 const HEAD_FONT  = 32;   
 const SEQ_FONT   = 64;
 const TIMER_FONT = 18;
 const V_GAP      = 20;
 
-// Centers & offsets
 const HEAD_C  = HEAD_FONT/2 + V_GAP;
 const SEQ_C   = HEAD_C + HEAD_FONT/2 + V_GAP + SEQ_FONT/2;
 const TIMER_C = SEQ_C + SEQ_FONT/2 + V_GAP + TIMER_FONT/2;
-const BOX_Y   = TIMER_C + TIMER_FONT/2 + V_GAP;  // top of grid box
+const BOX_Y   = TIMER_C + TIMER_FONT/2 + V_GAP;
 
 const WIDTH  = 800, HEIGHT = 700;
 const ROWS   = 8, COLS   = 10;
@@ -34,13 +30,11 @@ const DIFFICULTIES = [
   { label: 'S', time: 8000,  score: 15 }
 ];
 
-// ==== STATE ====
 let grid, target, curR, curC;
 let lastShift, startTime;
 let score = 0, fails = 0;
 let state = 'menu', stateStart = 0, menuIndex = 0;
 
-// ==== HELPERS ====  
 function randPair() {
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   return A[Math.floor(Math.random()*26)] + A[Math.floor(Math.random()*26)];
@@ -63,7 +57,6 @@ function nextCell(r,c){
   return [r,c]; 
 }
 
-// ==== ROUND CONTROLS ====
 function newRound() {
   grid = Array.from({length:ROWS}, ()=>Array.from({length:COLS}, randPair));
   target = [randPair(),randPair(),randPair(),randPair()];
@@ -88,7 +81,6 @@ function initGame() {
   newRound();
 }
 
-// ==== CANVAS SETUP ====
 const canvas = document.getElementById('game');
 const ctx    = canvas.getContext('2d');
 ctx.textBaseline = 'middle';
@@ -100,7 +92,6 @@ function drawText(txt,size,y,color){
   ctx.fillText(txt, WIDTH/2, y);
 }
 
-// ==== UPDATE ====
 function update(){
   const now = performance.now();
   if (state==='connecting') {
@@ -121,11 +112,9 @@ function update(){
   }
 }
 
-// ==== DRAW ====
 function draw(){
   ctx.clearRect(0,0,WIDTH,HEIGHT);
 
-  // --- MENU ---
   if (state==='menu') {
     drawText("The Boosting Palace", HEAD_FONT, HEAD_C, LIGHT);
     drawText('Select Difficulty',
@@ -150,14 +139,12 @@ function draw(){
     return;
   }
 
-  // --- HEADER ---
   if (state==='connecting' || state==='playing') {
     ctx.shadowColor=LIGHT; ctx.shadowBlur=4;
     drawText('CONNECTING TO THE HOST', HEAD_FONT, HEAD_C, LIGHT);
     ctx.shadowBlur=0;
   }
 
-  // --- CONNECTING ANIMATION ---
   if (state==='connecting') {
     ctx.shadowColor=LIGHT; ctx.shadowBlur=12;
     drawText('CONNECTING...', HEAD_FONT, HEAD_C + HEAD_FONT + V_GAP, LIGHT);
@@ -165,7 +152,6 @@ function draw(){
     return;
   }
 
-  // --- RESULT SCREEN ---
   if (state!=='playing') {
     const ok=['connected','boostsuccess'];
     const col = ok.includes(state)? LIGHT : 'rgba(255,0,0,0.6)';
@@ -188,17 +174,13 @@ function draw(){
     return;
   }
 
-  // --- PLAYING ---
-  // 1) draw sequence with glow
   ctx.shadowColor=LIGHT; ctx.shadowBlur=12;
   drawText(target.slice().reverse().join(' '), SEQ_FONT, SEQ_C, LIGHT);
   ctx.shadowBlur=0;
 
-  // 2) draw timer
   const rem = ((GAME_TIME - (performance.now()-startTime))/1000).toFixed(2);
   drawText(rem.padStart(5,'0') + ' SEC LEFT', TIMER_FONT, TIMER_C, '#fff');
 
-  // 3) draw grid background
   const R=12, x0=OFFSET_X, y0=BOX_Y, w0=COLS*CW, h0=ROWS*CH;
   ctx.fillStyle='black';
   ctx.beginPath();
@@ -214,7 +196,6 @@ function draw(){
   ctx.closePath();
   ctx.fill();
 
-  // 4) draw all letters with glow
   ctx.font='32px Consolas';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
@@ -231,13 +212,11 @@ function draw(){
   }
   ctx.shadowBlur=0;
 
-  // 5) highlight background only
   const cells=[]; let [rr,cc]=[curR,curC]; cells.push([rr,cc]);
   for (let i=0; i<3; i++) ([rr,cc]=nextCell(rr,cc), cells.push([rr,cc]));
   ctx.fillStyle = H_FILL;
   cells.forEach(([r,c])=>ctx.fillRect(OFFSET_X+c*CW, BOX_Y+r*CH, CW, CH));
 
-  // 6) draw highlight border
   ctx.strokeStyle=H_BORDER;
   ctx.lineWidth=4;
   const groups={};
@@ -252,7 +231,6 @@ function draw(){
     );
   }
 
-  // 7) redraw just those four letters at full brightness
   ctx.font='32px Consolas';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
@@ -267,7 +245,6 @@ function draw(){
   }
   ctx.shadowBlur=0;
 
-  // 8) draw score & fails
   const infoY = BOX_Y + ROWS*CH + V_GAP;
   ctx.font='28px Consolas';
   ctx.textAlign='left';  ctx.fillStyle=LIGHT;
@@ -276,27 +253,18 @@ function draw(){
   ctx.fillText(`Fails: ${fails}/5`, OFFSET_X + COLS*CW, infoY);
 }
 
-// RESULT HANDLER
-// RESULT HANDLER
 function applyResult(ok) {
   if (ok) {
-    // +1 on success, max out at TARGET_SCORE
     score = Math.min(TARGET_SCORE, score + 1);
     state = score >= TARGET_SCORE ? 'connected' : 'boostsuccess';
   } else {
-    // record a fail
     fails++;
-    // subtract 2 on every fail, but never below 0
     score = Math.max(0, score - 2);
-    // if it’s the 5th fail, go to totalfail
     state = fails >= 5 ? 'totalfail' : 'wrong';
   }
   stateStart = performance.now();
 }
 
-
-
-// INPUT HANDLING
 window.addEventListener('keydown', e=>{
   const now = performance.now();
   if (state==='menu') {
@@ -326,7 +294,6 @@ window.addEventListener('keydown', e=>{
   }
 });
 
-// MAIN LOOP
 (function loop(){
   update();
   draw();
