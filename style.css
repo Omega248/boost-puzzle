@@ -1,0 +1,42 @@
+:root {
+    --dark-green: #000;
+    --light-green: #25EF9A;
+    --connect-green: #2db62d;
+    --highlight-fill: rgba(37,239,154,0.25);
+    --highlight-border: var(--light-green);
+    --bezel: #000000;
+  }
+  
+  /* full‐screen dark background */
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Consolas", monospace;
+  }
+  
+  /* the “phone” shape */
+  .device {
+       width: 700px;    /* was 600px × 1.15 */
+        height: 850px;   /* was 725px × 1.15 */
+        padding: 20px;   /* bezel thickness */
+        background: linear-gradient(to bottom, #033E24, #001C0D);
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+  
+  /* scale the 800×700 canvas to fit the phone screen */
+  canvas#game {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    border-radius: 4px;
+    background: transparent;
+  }
