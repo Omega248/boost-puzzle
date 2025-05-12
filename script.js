@@ -92,16 +92,16 @@ function drawText(txt,size,y,color){
   ctx.fillText(txt, WIDTH/2, y);
 }
 
-function update() {
+function update(){
   const now = performance.now();
 
-  if (state === 'connecting') {
+  if (state==='connecting') {
     if (now - stateStart >= CONNECT_TIME) {
       state     = 'playing';
       startTime = now;
     }
   }
-  else if (state === 'playing') {
+  else if (state==='playing') {
     if (now - lastShift >= SHIFT_INTERVAL) {
       shiftPuzzle(grid);
       lastShift = now;
