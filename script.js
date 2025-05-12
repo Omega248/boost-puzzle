@@ -253,10 +253,15 @@ function draw(){
   ctx.fillText(`Fails: ${fails}/5`, OFFSET_X + COLS*CW, infoY);
 }
 
-function applyResult(ok) {
+function applyResult(ok, timedOut = false) {
   ok = Boolean(ok);
 
-  if (ok) {
+  if (timedOut) {
+    fails++;
+    score = Math.max(0, score - 2);
+    state = fails >= 5 ? 'totalfail' : 'wrong';
+  }
+  else if (ok) {
     score = Math.min(TARGET_SCORE, score + 1);
     state = score >= TARGET_SCORE ? 'connected' : 'boostsuccess';
   } else {
